@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Reels | Nexusgram</title>
+    <style>
+        body { margin: 0; background: #000; color: white; font-family: sans-serif; overflow: hidden; }
+        .reel-container { height: 100vh; width: 100vw; scroll-snap-type: y mandatory; overflow-y: scroll; }
+        .reel-slide { height: 100vh; width: 100vw; scroll-snap-align: start; position: relative; display: flex; justify-content: center; align-items: center; }
+        video { height: 100%; width: 100%; object-fit: cover; }
+        .caption { position: absolute; bottom: 20px; left: 20px; z-index: 10; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="reel-container" id="reels-feed">
+    </div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+    const firebaseConfig = { /* अपना वही config यहाँ डालें */ };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore();
+
+    async function loadReels() {
+        const querySnapshot = await getDocs(collection(db, "reels"));
+        const feed = document.getElementById('reels-feed');
+        
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const slide = document.createElement('div');
+            slide.className = 'reel-slide';
+            slide.innerHTML = `
+                <video src="${data.videoURL}" loop controls></video>
+                <div class="caption">${data.caption || "No caption"}</div>
+            `;
+            feed.appendChild(slide);
+        });
+    }
+    loadReels();
+</script>
+</body>
+</html>
