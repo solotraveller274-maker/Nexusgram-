@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexusgram</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        
+        body { 
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); 
+            min-height: 100vh; 
+            color: #333; 
+            padding: 20px; 
+        }
+        
+        .container { max-width: 500px; margin: auto; }
+        
+        h2 { margin-bottom: 15px; color: #1a5f7a; font-size: 20px; }
+        
+        /* Online Bar */
+        .online-bar { display: flex; gap: 15px; overflow-x: auto; padding: 10px 0; margin-bottom: 30px; }
+        .note-circle { display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 70px; }
+        .avatar-ring { width: 70px; height: 70px; border-radius: 50%; border: 3px solid #ffffff; padding: 3px; background: #fff; }
+        .avatar-ring img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        
+        /* Friend Card */
+        .friend-card { 
+            background: rgba(255, 255, 255, 0.5); 
+            backdrop-filter: blur(15px); 
+            border: 1px solid rgba(255, 255, 255, 0.8); 
+            border-radius: 20px; 
+            padding: 15px; 
+            margin-bottom: 15px; 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Online Now</h2>
+    <div class="online-bar" id="online-bar"></div>
+
+    <h2>Chats</h2>
+    <div id="friends-list"></div>
+</div>
+
+<script>
+    // Firebase Configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyCKmCKZ-aTnSCokuMQ7Mz2mgRl7MuyfRPw",
+        authDomain: "nexusgram-1.firebaseapp.com",
+        projectId: "nexusgram-1",
+        storageBucket: "nexusgram-1.firebasestorage.app",
+        messagingSenderId: "861550995018",
+        appId: "1:861550995018:web:e246dbf13f091ac55de8b3",
+        measurementId: "G-7QR449644N"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Fetch users from Firestore
+    db.collection("users").get().then((querySnapshot) => {
+        const onlineBar = document.getElementById('online-bar');
+        const friendsList = document.getElementById('friends-list');
+
+        querySnapshot.forEach((doc) => {
+            let user = doc.data();
+            
+            // Online Section
+            if(user.status === "online") {
+                onlineBar.innerHTML += `
+                    <div class="note-circle">
+                        <div class="avatar-ring"><img src="${user.photo}"></div>
+                        <small>${user.name}</small>
+                    </div>
+                `;
+            }
+
+            // Main List
+            friendsList.innerHTML += `
+                <div class="friend-card">
+                    <div style="width:50px; height:50px; border-radius:50%; background:#1a5f7a;"></div>
+                    <div>
+                        <h3>${user.name}</h3>
+                        <span style="font-size:12px; color:#555;">${user.status}</span>
+                    </div>
+                </div>
+            `;
+        });
+    });
+</script>
+</body>
+</html>
