@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Profile | Nexusgram</title>
+    <style>
+        body { background: linear-gradient(135deg, #0f2027, #2c5364); color: white; padding: 20px; font-family: 'Segoe UI', sans-serif; min-height: 100vh; margin: 0; display: flex; justify-content: center; align-items: center; }
+        .edit-container { width: 100%; max-width: 400px; background: rgba(255, 255, 255, 0.05); padding: 30px; border-radius: 30px; backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); text-align: center; }
+        h2 { margin: 0; font-size: 24px; color: #fff; }
+        .brand-name { font-size: 14px; color: #00d2ff; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 3px; }
+        .dp-container { position: relative; width: 120px; height: 120px; margin: 0 auto 25px auto; }
+        .dp-preview { width: 120px; height: 120px; border-radius: 50%; border: 4px solid #00d2ff; object-fit: cover; background: #203a43; }
+        .plus-icon { position: absolute; bottom: 0; right: 0; background: #00d2ff; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; border: 3px solid #0f2027; }
+        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 12px; border: none; background: rgba(255, 255, 255, 0.1); color: white; box-sizing: border-box; }
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 15px; background: #00d2ff; color: #000; font-weight: bold; cursor: pointer; margin-top: 15px; }
+        #dpInput { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="edit-container">
+    <h2>Edit Profile</h2>
+    <div class="brand-name">Nexusgram</div>
+    
+    <div class="dp-container">
+        <img src="https://via.placeholder.com/300" id="dpPreview" class="dp-preview" alt="DP">
+        <div class="plus-icon" onclick="document.getElementById('dpInput').click()">+</div>
+        <input type="file" id="dpInput" accept="image/*" onchange="previewImage(event)">
+    </div>
+    
+    <input type="text" id="fullName" placeholder="Full Name">
+    <input type="text" id="username" placeholder="Username">
+    <textarea id="bio" rows="3" placeholder="Bio"></textarea>
+    <input type="text" id="music" placeholder="Favorite Music">
+
+    <button class="btn" onclick="saveData()">Save Changes</button>
+</div>
+
+<script type="module">
+    // Firebase SDK Imports
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+
+    // Your Firebase Config
+    const firebaseConfig = {
+        apiKey: "AIzaSyCKmCKZ-aTnSCokuMQ7Mz2mgRl7MuyfRPw",
+        authDomain: "nexusgram-1.firebaseapp.com",
+        projectId: "nexusgram-1",
+        storageBucket: "nexusgram-1.firebasestorage.app",
+        messagingSenderId: "861550995018",
+        appId: "1:861550995018:web:e246dbf13f091ac55de8b3",
+        measurementId: "G-7QR449644N"
+    };
+
+    // Initialize
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore();
+    const auth = getAuth();
+
+    window.saveData = async () => {
+        const user = auth.currentUser;
+        if (!user) { alert("Please login first!"); return; }
+
+        const profileData = {
+            fullName: document.getElementById('fullName').value,
+            username: document.getElementById('username').value,
+            bio: document.getElementById('bio').value,
+            music: document.getElementById('music').value
+        };
+
+        try {
+            await setDoc(doc(db, "users", user.uid), profileData, { merge: true });
+            alert("Profile Updated Successfully!");
+            window.location.href = "profile.html";
+        } catch (e) {
+            console.error("Error updating:", e);
+            alert("Error: " + e.message);
+        }
+    };
+</script>
+
+<script>
+    function previewImage(event) {
+        const reader = new FileReader();
+        reader.onload = function(){ document.getElementById('dpPreview').src = reader.result; }
+        reader.readAsDataURL(event.target.files[0]);
+    }
+</script>
+</body>
+</html>
