@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexusgram Home</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { margin: 0; background: linear-gradient(135deg, #e3f2fd, #b3e5fc); min-height: 100vh; font-family: sans-serif; color: #333; padding-bottom: 90px; }
+        
+        .header { background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(15px); padding: 15px 20px; display: flex; justify-content: space-between; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid rgba(255,255,255,0.3); }
+
+        .story-bar { display: flex; padding: 15px; gap: 15px; overflow-x: auto; background: transparent; }
+        .story-circle { min-width: 70px; width: 70px; height: 70px; border-radius: 50%; border: 3px solid #0095f6; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.3); backdrop-filter: blur(5px); cursor: pointer; flex-shrink: 0; }
+        
+        .nav-bar { position: fixed; bottom: 0; width: 100%; background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(20px); display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid rgba(255,255,255,0.5); z-index: 10; }
+        .nav-item { cursor: pointer; text-align: center; color: #555; }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <h2 style="margin:0; color:#1976d2;">Nexusgram</h2>
+        <div>
+            <i class="fas fa-plus" style="font-size:22px; cursor:pointer;" onclick="document.getElementById('fileInput').click()"></i>
+            <i class="far fa-paper-plane" style="font-size:22px; margin-left:15px; cursor:pointer;" onclick="window.location.href='sms1.html'"></i>
+        </div>
+    </div>
+
+    <!-- Story Bar -->
+    <div class="story-bar">
+        <div class="story-circle" onclick="document.getElementById('fileInput').click();">
+            <i class="fas fa-plus" style="color:#0095f6; font-size:20px;"></i>
+        </div>
+    </div>
+
+    <!-- Hidden File Input -->
+    <input type="file" id="fileInput" accept="image/*" style="display:none;">
+
+    <!-- Navigation -->
+    <div class="nav-bar">
+        <div class="nav-item" onclick="window.location.href='Home.html'"><i class="fas fa-home fa-lg"></i></div>
+        <div class="nav-item" onclick="window.location.href='search.html'"><i class="fas fa-search fa-lg"></i></div>
+        <div class="nav-item" onclick="window.location.href='reels.html'"><i class="fas fa-clapperboard fa-lg"></i></div>
+        <div class="nav-item" onclick="window.location.href='profile.html'"><i class="fas fa-user fa-lg"></i></div>
+    </div>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCKmCKZ-aTnSCokuMQ7Mz2mgRl7MuyFRPw",
+        authDomain: "nexusgram-1.firebaseapp.com",
+        projectId: "nexusgram-1",
+        storageBucket: "nexusgram-1.appspot.com",
+        messagingSenderId: "861550995018",
+        appId: "1:861550995018:web:e246dbf13f091ac55de8b3",
+        measurementId: "G-7QR449644N"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // 1. फोटो अपलोड और सेव करने का कोड
+    document.getElementById('fileInput').addEventListener('change', async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', 'ml_default');
+
+        try {
+            const response = await fetch('https://api.cloudinary.com/v1_1/agutfi5o/image/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            
+            if (data.secure_url) {
+                // अगर फोटो अपलोड हो गई, तो ही डेटाबेस में सेव करें
+                await addDoc(collection(db, "posts"), {
+                    imageUrl: data.secure_url,
+                    createdAt: new Date()
+                });
+                alert("Post shared successfully!");
+                location.reload();
+            } else {
+                alert("Upload Failed! Cloudinary से रिस्पॉन्स नहीं मिला।");
+            }
+        } catch (error) {
+            console.error("Critical Error:", error);
+            alert("Upload failed! Error: " + error.message);
+        }
+    });
+
+    // 2. फीड दिखाने का कोड
+    async function loadPosts() {
+        const feedContainer = document.getElementById('feed-container');
+        if (!feedContainer) return;
+
+        const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+        const querySnapshot = await getDocs(q);
+
+        querySnapshot.forEach((doc) => {
+            const post = doc.data();
+            const img = document.createElement('img');
+            img.src = post.imageUrl;
+            img.style.width = '100%';
+            img.style.marginTop = '10px';
+            feedContainer.appendChild(img);
+        });
+    }
+
+    loadPosts();
+</script>
+
+</body>
+</html>
