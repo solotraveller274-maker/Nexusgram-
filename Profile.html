@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexusgram Profile</title>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { getAuth } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCKmCKZ-aTnSCokuMQ7Mz2mgRl7MuyfRPw",
+            authDomain: "nexusgram-1.firebaseapp.com",
+            projectId: "nexusgram-1",
+            storageBucket: "nexusgram-1.firebasestorage.app",
+            messagingSenderId: "861550995018",
+            appId: "1:861550995018:web:e246dbf13f091ac55de8b3",
+            measurementId: "G-7QR449644N"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore();
+        const auth = getAuth();
+
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                const docSnap = await getDoc(doc(db, "users", user.uid));
+                if (docSnap.exists()) {
+                    document.getElementById('username').innerText = "@" + docSnap.data().username;
+                }
+            }
+        });
+    </script>
+
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); margin: 0; min-height: 100vh; color: #fff; padding-bottom: 80px; }
+        .header { padding: 20px 0 5px 0; font-size: 28px; font-weight: 800; text-align: center; color: #00d2ff; }
+        .username-display { text-align: center; font-size: 16px; margin-bottom: 20px; color: #a0c4ff; }
+        .profile-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 30px; margin: 0 20px; padding: 25px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); }
+        .dp { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #00d2ff; margin: 0 auto 15px auto; display: block; object-fit: cover; }
+        .stats { display: flex; justify-content: space-around; margin-bottom: 20px; }
+        .stat-item { text-align: center; }
+        .buttons { display: flex; gap: 15px; }
+        .btn { flex: 1; padding: 12px; border: none; border-radius: 12px; background: #00d2ff; color: #000; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        
+        /* Clean Navigation Bar - No Box */
+        .nav-bar { position: fixed; bottom: 0; width: 100%; display: flex; justify-content: space-around; padding: 15px 0; background: transparent; }
+        .nav-icon { cursor: pointer; font-size: 24px; color: white; opacity: 0.8; }
+        .nav-icon:active { transform: scale(0.9); }
+    </style>
+</head>
+<body>
+
+    <div class="header">Nexusgram</div>
+    <div class="username-display" id="username">@Loading...</div>
+
+    <div class="profile-card">
+        <img src="https://via.placeholder.com/150" class="dp" alt="DP">
+        <div class="stats">
+            <div class="stat-item"><b>0</b><br>Posts</div>
+            <div class="stat-item"><b>0</b><br>Followers</div>
+            <div class="stat-item"><b>0</b><br>Following</div>
+        </div>
+        <div class="buttons">
+            <button class="btn" onclick="window.location.href='editprofile.html'">Edit Profile</button>
+            <button class="btn" onclick="alert('Share link copied!')">Share</button>
+        </div>
+    </div>
+
+    <div class="nav-bar">
+        <span class="nav-icon" onclick="window.location.href='home.html'">🏠</span>
+        <span class="nav-icon" onclick="window.location.href='search.html'">🔍</span>
+        <span class="nav-icon" onclick="window.location.href='upload.html'">➕</span>
+        <span class="nav-icon" onclick="window.location.href='reels.html'">🎬</span>
+        <span class="nav-icon" onclick="window.location.href='profile.html'">👤</span>
+    </div>
+
+</body>
+</html>
