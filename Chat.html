@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexusgram Chat</title>
+    <style>
+        body { margin: 0; background: #e0eafc; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        .header { background: white; padding: 15px; text-align: center; font-weight: bold; font-size: 18px; border-bottom: 1px solid #ddd; }
+        #chat-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .message { padding: 10px 15px; border-radius: 18px; max-width: 75%; background: #2563eb; color: white; align-self: flex-end; }
+        .input-area { padding: 12px; background: white; display: flex; gap: 8px; border-top: 1px solid #eee; }
+        input { flex: 1; padding: 12px; border-radius: 25px; border: 1px solid #ccc; outline: none; }
+        button { padding: 0 20px; border-radius: 25px; border: none; background: #2563eb; color: white; font-weight: 600; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="header" id="chat-header">Friend Name</div>
+    <div id="chat-box"></div>
+
+    <div class="input-area">
+        <input type="text" id="message-input" placeholder="Type a message..." autocomplete="off">
+        <button id="send-btn">Send</button>
+    </div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+    const app = initializeApp({
+        apiKey: "AIzaSyCKmCKZ-aTnSCokuMQ7Mz2mgRl7MuyfRPw",
+        projectId: "nexusgram-1"
+    });
+    const db = getFirestore(app);
+
+    const input = document.getElementById('message-input');
+    const sendBtn = document.getElementById('send-btn');
+
+    // Button Click Event Listener (यही सही तरीका है)
+    sendBtn.addEventListener('click', async () => {
+        const text = input.value.trim();
+        if (text === "") return;
+
+        await addDoc(collection(db, "messages"), {
+            text: text,
+            createdAt: serverTimestamp()
+        });
+
+        input.value = ""; // अब यह 100% क्लियर होगा
+        input.focus();    // कीबोर्ड खुला रहेगा
+    });
+
+    // Live messages update
+    onSnapshot(query(collection(db, "messages"), orderBy("createdAt")), (snap) => {
+        const box = document.getElementById('chat-box');
+        box.innerHTML = "";
+        snap.forEach(d => box.innerHTML += `<div class="message">${d.data().text}</div>`);
+        box.scrollTop = box.scrollHeight;
+    });
+</script>
+</body>
+</html>
