@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexusgram Search</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: linear-gradient(135deg, #e0f7fa 0%, #b3e5fc 100%); min-height: 100vh; padding: 20px; }
+        
+        .search-container { max-width: 500px; margin: auto; display: flex; align-items: center; gap: 10px; }
+        
+        #searchInput { 
+            flex-grow: 1; 
+            padding: 12px 20px; 
+            border-radius: 25px; 
+            border: 1px solid rgba(255,255,255,0.5); 
+            background: rgba(255,255,255,0.7); 
+            outline: none; 
+        }
+        
+        .search-btn { 
+            background: #0095f6; 
+            color: white; 
+            border: none; 
+            padding: 12px 18px; 
+            border-radius: 50%; 
+            cursor: pointer; 
+        }
+        
+        .results-grid { margin-top: 30px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .photo-card { aspect-ratio: 1/1; background: #fff; border-radius: 10px; overflow: hidden; }
+        .photo-card img { width: 100%; height: 100%; object-fit: cover; }
+    </style>
+</head>
+<body>
+
+<div class="search-container">
+    <input type="text" id="searchInput" placeholder="Search friends...">
+    <button class="search-btn" onclick="performSearch()">
+        <i class="fas fa-arrow-right"></i>
+    </button>
+</div>
+
+<div id="results" class="results-grid"></div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyCKmCKZ-aTnSCokuMQ7Mz2mgRl7MuyfRPw",
+        authDomain: "nexusgram-1.firebaseapp.com",
+        projectId: "nexusgram-1",
+        storageBucket: "nexusgram-1.firebasestorage.app",
+        messagingSenderId: "861550995018",
+        appId: "1:861550995018:web:e246dbf13f091ac55de8b3"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    function performSearch() {
+        let query = document.getElementById('searchInput').value.toLowerCase();
+        let resultDiv = document.getElementById('results');
+        resultDiv.innerHTML = "";
+
+        db.collection("users").get().then((snapshot) => {
+            snapshot.forEach((doc) => {
+                let user = doc.data();
+                if (user.name.toLowerCase().includes(query)) {
+                    resultDiv.innerHTML += `
+                        <div class="photo-card">
+                            <img src="${user.photo}" alt="user">
+                        </div>
+                    `;
+                }
+            });
+        });
+    }
+</script>
+</body>
+</html>
